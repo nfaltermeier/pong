@@ -1,7 +1,7 @@
 extern crate sdl2;
 extern crate rand;
 
-use actor::{Position, UpdateInfo};
+use actor::{Vec2, UpdateInfo};
 use actors::ball::Ball;
 use actors::player_paddle::PlayerPaddle;
 use sdl2::event::Event;
@@ -19,12 +19,12 @@ mod math_helper;
 const SCREEN_WIDTH: i16 = 800;
 const SCREEN_HEIGHT: i16 = 600;
 
-const TARGET_FRAMERATE: f64 = 60.0;
+const TARGET_FRAMERATE: f32 = 60.0;
 const TARGET_FRAMETIME_MICROS: u128 = (1.0 / TARGET_FRAMERATE * 1_000_000.0) as u128;
 
-const FIXED_UPDATE_RATE: f64 = 60.0;
-const FIXED_UPDATE_TIME_SECS_F64: f64 = 1.0 / FIXED_UPDATE_RATE;
-const FIXED_UPDATE_TIME_MICROS_U64: u64 = (FIXED_UPDATE_TIME_SECS_F64 * 1_000_000.0) as u64;
+const FIXED_UPDATE_RATE: f32 = 60.0;
+const FIXED_UPDATE_TIME_SECS_F32: f32 = 1.0 / FIXED_UPDATE_RATE;
+const FIXED_UPDATE_TIME_MICROS_U64: u64 = (FIXED_UPDATE_TIME_SECS_F32 * 1_000_000.0) as u64;
 const FIXED_UPDATE_TIME_MICROS_U128: u128 = FIXED_UPDATE_TIME_MICROS_U64 as u128;
 
 fn main() -> Result<(), String> {
@@ -52,18 +52,18 @@ fn main() -> Result<(), String> {
         keys_pressed: HashSet::new(),
         actors: Vec::new(),
         elapsed: Duration::from_nanos(0),
-        elapsed_sec_f64: 0.0,
+        elapsed_sec_f32: 0.0,
     };
 
-    let player = PlayerPaddle::new(&Position {
-        x: 40,
-        y: SCREEN_HEIGHT / 2,
+    let player = PlayerPaddle::new(&Vec2 {
+        x: 40.0,
+        y: SCREEN_HEIGHT as f32 / 2.0,
     });
     update_info.actors.push(RefCell::new(Box::new(player)));
 
-    let ball = Ball::new(&Position {
-        x: SCREEN_WIDTH / 2,
-        y: SCREEN_HEIGHT / 2,
+    let ball = Ball::new(&Vec2 {
+        x: SCREEN_WIDTH as f32 / 2.0,
+        y: SCREEN_HEIGHT as f32 / 2.0,
     });
     update_info.actors.push(RefCell::new(Box::new(ball)));
 
@@ -73,7 +73,7 @@ fn main() -> Result<(), String> {
         if update_info.elapsed.as_micros() >= TARGET_FRAMETIME_MICROS {
             last_frame = now;
 
-            update_info.elapsed_sec_f64 = update_info.elapsed.as_micros() as f64 / 1_000_000.0;
+            update_info.elapsed_sec_f32 = update_info.elapsed.as_micros() as f32 / 1_000_000.0;
 
             canvas.set_draw_color(pixels::Color::RGB(0, 0, 0));
             canvas.clear();
@@ -116,7 +116,7 @@ fn main() -> Result<(), String> {
 
             time_since_fixed_update += update_info.elapsed;
             update_info.elapsed = Duration::from_micros(FIXED_UPDATE_TIME_MICROS_U64);
-            update_info.elapsed_sec_f64 = FIXED_UPDATE_TIME_SECS_F64;
+            update_info.elapsed_sec_f32 = FIXED_UPDATE_TIME_SECS_F32;
             while time_since_fixed_update.as_micros() > FIXED_UPDATE_TIME_MICROS_U128 {
                 i = 0;
                 while i < update_info.actors.len() {

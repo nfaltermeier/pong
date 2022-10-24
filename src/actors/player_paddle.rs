@@ -2,42 +2,42 @@ use sdl2::{keyboard::Keycode, pixels::Color, rect::Rect};
 
 use crate::actor::*;
 
-const MOVE_SPEED: f64 = 150.0;
+const MOVE_SPEED: f32 = 150.0;
 
 pub struct PlayerPaddle {
-    position: Position,
+    position: Vec2,
     collider: RectangleDefinition,
 }
 
 impl PlayerPaddle {
-    pub fn new(position: &Position) -> PlayerPaddle {
+    pub fn new(position: &Vec2) -> PlayerPaddle {
         PlayerPaddle {
             position: *position,
             collider: RectangleDefinition {
-                width: 15,
-                height: 50,
+                width: 15.0,
+                height: 50.0,
             },
         }
     }
 }
 
 impl Actor for PlayerPaddle {
-    fn position(&self) -> &Position {
+    fn position(&self) -> &Vec2 {
         &self.position
     }
 
-    fn set_position(&mut self, new_pos: &Position) {
+    fn set_position(&mut self, new_pos: &Vec2) {
         self.position = *new_pos;
     }
 
     fn update(&mut self, info: &UpdateInfo) {
         if info.keys_pressed.contains(&Keycode::W) {
             self.position.y -=
-                (MOVE_SPEED * (info.elapsed.as_micros() as f64 / 1_000_000.0)) as i16;
+                MOVE_SPEED * info.elapsed_sec_f32;
         }
         if info.keys_pressed.contains(&Keycode::S) {
             self.position.y +=
-                (MOVE_SPEED * (info.elapsed.as_micros() as f64 / 1_000_000.0)) as i16;
+                MOVE_SPEED * info.elapsed_sec_f32;
         }
     }
 
@@ -53,10 +53,10 @@ impl Actor for PlayerPaddle {
         {
             canvas.set_draw_color(Color::RGB(255, 255, 255));
             let _ = canvas.fill_rect(Rect::new(
-                left.into(),
-                up.into(),
-                self.collider.width.try_into().unwrap(),
-                self.collider.height.try_into().unwrap(),
+                left.round() as i32,
+                up.round() as i32,
+                self.collider.width.round() as u32,
+                self.collider.height.round() as u32,
             ));
         }
     }
