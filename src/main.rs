@@ -1,9 +1,10 @@
-extern crate sdl2;
 extern crate rand;
+extern crate sdl2;
 
-use actor::{Vec2, UpdateInfo};
+use actor::{UpdateInfo, Vec2};
 use actors::ball::Ball;
 use actors::player_paddle::PlayerPaddle;
+use actors::wall::Wall;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels;
@@ -14,6 +15,7 @@ use std::time::{Duration, Instant};
 
 mod actor;
 mod actors;
+mod collision_helper;
 mod math_helper;
 
 const SCREEN_WIDTH: i16 = 800;
@@ -55,17 +57,40 @@ fn main() -> Result<(), String> {
         elapsed_sec_f32: 0.0,
     };
 
+    let half_width = SCREEN_WIDTH as f32 / 2.0;
+    let half_height = SCREEN_HEIGHT as f32 / 2.0;
+
     let player = PlayerPaddle::new(&Vec2 {
         x: 40.0,
-        y: SCREEN_HEIGHT as f32 / 2.0,
+        y: half_height,
     });
     update_info.actors.push(RefCell::new(Box::new(player)));
 
     let ball = Ball::new(&Vec2 {
-        x: SCREEN_WIDTH as f32 / 2.0,
-        y: SCREEN_HEIGHT as f32 / 2.0,
+        x: half_width,
+        y: half_height,
     });
     update_info.actors.push(RefCell::new(Box::new(ball)));
+
+    let wall = Wall::new(
+        &Vec2 {
+            x: half_width,
+            y: -half_height,
+        },
+        SCREEN_WIDTH as f32,
+        SCREEN_HEIGHT as f32,
+    );
+    update_info.actors.push(RefCell::new(Box::new(wall)));
+
+    let wall = Wall::new(
+        &Vec2 {
+            x: half_width,
+            y: 3.0 * half_height,
+        },
+        SCREEN_WIDTH as f32,
+        SCREEN_HEIGHT as f32,
+    );
+    update_info.actors.push(RefCell::new(Box::new(wall)));
 
     'main: loop {
         let now = Instant::now();
@@ -131,7 +156,7 @@ fn main() -> Result<(), String> {
             i = 0;
             while i < update_info.actors.len() {
                 if let Option::Some(a) = update_info.actors.get(i) {
-                    a.borrow().draw(&mut canvas);
+                    let _ = a.borrow().draw(&mut canvas);
                 }
                 i += 1;
             }

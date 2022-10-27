@@ -32,18 +32,16 @@ impl Actor for PlayerPaddle {
 
     fn update(&mut self, info: &UpdateInfo) {
         if info.keys_pressed.contains(&Keycode::W) {
-            self.position.y -=
-                MOVE_SPEED * info.elapsed_sec_f32;
+            self.position.y -= MOVE_SPEED * info.elapsed_sec_f32;
         }
         if info.keys_pressed.contains(&Keycode::S) {
-            self.position.y +=
-                MOVE_SPEED * info.elapsed_sec_f32;
+            self.position.y += MOVE_SPEED * info.elapsed_sec_f32;
         }
     }
 
     fn fixed_update(&mut self, _info: &UpdateInfo) {}
 
-    fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+    fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) -> Result<(), String> {
         if let ColliderBounds::Rectangle {
             up,
             down: _,
@@ -52,12 +50,15 @@ impl Actor for PlayerPaddle {
         } = ColliderBounds::from(&ColliderType::Rectangle(self.collider), &self.position)
         {
             canvas.set_draw_color(Color::RGB(255, 255, 255));
-            let _ = canvas.fill_rect(Rect::new(
+            canvas.fill_rect(Rect::new(
                 left.round() as i32,
                 up.round() as i32,
                 self.collider.width.round() as u32,
                 self.collider.height.round() as u32,
-            ));
+            ))?;
+            Result::Ok(())
+        } else {
+            Result::Err("PlayerPaddle: self.collider is not a Rectangle".to_string())
         }
     }
 
