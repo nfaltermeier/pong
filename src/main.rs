@@ -4,7 +4,7 @@ extern crate sdl2;
 use actor::{UpdateInfo, Vec2};
 use actors::ball::Ball;
 use actors::player_paddle::PlayerPaddle;
-use actors::wall::Wall;
+use actors::wall::{Wall, WallType};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels;
@@ -60,10 +60,22 @@ fn main() -> Result<(), String> {
     let half_width = SCREEN_WIDTH as f32 / 2.0;
     let half_height = SCREEN_HEIGHT as f32 / 2.0;
 
-    let player = PlayerPaddle::new(&Vec2 {
-        x: 40.0,
-        y: half_height,
-    });
+    let player = PlayerPaddle::new(
+        &Vec2 {
+            x: 40.0,
+            y: half_height,
+        },
+        true,
+    );
+    update_info.actors.push(RefCell::new(Box::new(player)));
+
+    let player = PlayerPaddle::new(
+        &Vec2 {
+            x: SCREEN_WIDTH as f32 - 40.0,
+            y: half_height,
+        },
+        false,
+    );
     update_info.actors.push(RefCell::new(Box::new(player)));
 
     let ball = Ball::new(&Vec2 {
@@ -79,6 +91,7 @@ fn main() -> Result<(), String> {
         },
         SCREEN_WIDTH as f32,
         SCREEN_HEIGHT as f32,
+        WallType::Regular,
     );
     update_info.actors.push(RefCell::new(Box::new(wall)));
 
@@ -89,6 +102,29 @@ fn main() -> Result<(), String> {
         },
         SCREEN_WIDTH as f32,
         SCREEN_HEIGHT as f32,
+        WallType::Regular,
+    );
+    update_info.actors.push(RefCell::new(Box::new(wall)));
+
+    let wall = Wall::new(
+        &Vec2 {
+            x: -half_width,
+            y: half_height,
+        },
+        SCREEN_WIDTH as f32,
+        SCREEN_HEIGHT as f32,
+        WallType::Left,
+    );
+    update_info.actors.push(RefCell::new(Box::new(wall)));
+
+    let wall = Wall::new(
+        &Vec2 {
+            x: 3.0 * half_width,
+            y: half_height,
+        },
+        SCREEN_WIDTH as f32,
+        SCREEN_HEIGHT as f32,
+        WallType::Right,
     );
     update_info.actors.push(RefCell::new(Box::new(wall)));
 

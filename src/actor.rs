@@ -7,6 +7,8 @@ use std::{
 
 use sdl2::{keyboard::Keycode, render::Canvas, video::Window};
 
+use crate::actors::wall::WallType;
+
 #[derive(Copy, Clone)]
 pub struct Vec2 {
     pub x: f32,
@@ -77,6 +79,7 @@ pub enum ColliderBounds {
         down: f32,
         left: f32,
         right: f32,
+        center: Vec2,
     },
     Circle {
         radius: f32,
@@ -100,6 +103,7 @@ impl ColliderBounds {
                     down: pos.y + half_height,
                     left: pos.x - half_width,
                     right: pos.x + half_width,
+                    center: *pos,
                 }
             }
         }
@@ -124,6 +128,10 @@ pub struct UpdateInfo {
     pub actors: Vec<RefCell<Box<dyn Actor>>>,
 }
 
+pub enum ActorData {
+    Wall(WallType)
+}
+
 pub trait Actor {
     fn position(&self) -> &Vec2;
     fn set_position(&mut self, new_pos: &Vec2);
@@ -131,4 +139,5 @@ pub trait Actor {
     fn fixed_update(&mut self, info: &UpdateInfo);
     fn draw(&self, canvas: &mut Canvas<Window>) -> Result<(), String>;
     fn get_collider(&self) -> Option<Collider>;
+    fn get_data(&self) -> Option<ActorData>;
 }

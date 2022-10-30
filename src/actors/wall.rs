@@ -1,18 +1,24 @@
 use crate::actor::*;
 
+#[derive(Copy, Clone)]
+pub enum WallType {
+    Regular,
+    Left,
+    Right,
+}
+
 pub struct Wall {
     position: Vec2,
     collider: RectangleDefinition,
+    wall_type: WallType,
 }
 
 impl Wall {
-    pub fn new(position: &Vec2, width: f32, height: f32) -> Wall {
+    pub fn new(position: &Vec2, width: f32, height: f32, wall_type: WallType) -> Wall {
         Wall {
             position: *position,
-            collider: RectangleDefinition {
-                height,
-                width,
-            },
+            collider: RectangleDefinition { height, width },
+            wall_type,
         }
     }
 }
@@ -39,5 +45,9 @@ impl Actor for Wall {
             is_static: true,
             collider: ColliderType::Rectangle(self.collider),
         })
+    }
+
+    fn get_data(&self) -> Option<ActorData> {
+        Option::Some(ActorData::Wall(self.wall_type))
     }
 }

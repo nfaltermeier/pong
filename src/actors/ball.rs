@@ -4,24 +4,32 @@ use crate::actor::*;
 use crate::collision_helper;
 use crate::math_helper;
 
-const INITIAL_SPEED: f32 = 100.0;
+use super::wall::WallType;
+
+const INITIAL_SPEED: f32 = 125.0;
 
 pub struct Ball {
     position: Vec2,
+    initial_position: Vec2,
     velocity: Vec2,
     radius: f32,
 }
 
 impl Ball {
     pub fn new(position: &Vec2) -> Ball {
-        let v = math_helper::get_point_on_unit_circle();
         Ball {
             position: *position,
-            velocity: Vec2 {
-                x: v.0 * INITIAL_SPEED,
-                y: v.1 * INITIAL_SPEED,
-            },
+            initial_position: *position,
+            velocity: Ball::get_random_starting_velocity(),
             radius: 23.0,
+        }
+    }
+
+    fn get_random_starting_velocity() -> Vec2 {
+        let v = math_helper::get_point_on_unit_circle();
+        Vec2 {
+            x: v.0 * INITIAL_SPEED,
+            y: v.1 * INITIAL_SPEED,
         }
     }
 }
@@ -51,12 +59,30 @@ impl Actor for Ball {
                 if let Result::Ok(actor) = a.try_borrow() {
                     if let Option::Some(col) = actor.get_collider() {
                         let bounds = col.to_bounds(*actor.position());
-                        let sep = collision_helper::separation(my_bounds, bounds);
+                        let sep_vec = collision_helper::separation_vec(my_bounds, bounds);
+                        let sep = sep_vec.length() - self.radius;
 
                         if sep < 0.0 {
+                            if let Option::Some(d) = actor.get_data() {
+                                if let ActorData::Wall(wd) = d {
+                                    if matches!(wd, WallType::Left) || matches!(wd, WallType::Right) {
+                                        self.position = self.initial_position;
+                                        self.velocity = Ball::get_random_starting_velocity();
+                                        return;
+                                    }
+                                }
+                            }
+
                             let speed = self.velocity.length();
                             let t = -sep / speed;
-                            self.velocity *= -1.05;
+
+                            if sep_vec.x.abs() > sep_vec.y.abs() {
+                                self.velocity.x *= -1.0;
+                            } else {
+                                self.velocity.y *= -1.0;
+                            }
+                            self.velocity *= 1.05;
+
                             self.position += self.velocity * t;
                             my_bounds = my_col.to_bounds(self.position);
                         }
@@ -85,6 +111,10 @@ impl Actor for Ball {
                 radius: self.radius,
             },
         })
+    }
+
+    fn get_data(&self) -> Option<ActorData> {
+        Option::None
     }
 }
 
