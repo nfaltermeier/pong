@@ -65,7 +65,8 @@ impl Actor for Ball {
                         if sep < 0.0 {
                             if let Option::Some(d) = actor.get_data() {
                                 if let ActorData::Wall(wd) = d {
-                                    if matches!(wd, WallType::Left) || matches!(wd, WallType::Right) {
+                                    if matches!(wd, WallType::Left) || matches!(wd, WallType::Right)
+                                    {
                                         self.position = self.initial_position;
                                         self.velocity = Ball::get_random_starting_velocity();
                                         return;

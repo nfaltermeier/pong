@@ -4,6 +4,7 @@ extern crate sdl2;
 use actor::{UpdateInfo, Vec2};
 use actors::ball::Ball;
 use actors::player_paddle::PlayerPaddle;
+use actors::scoreboard::Scoreboard;
 use actors::wall::{Wall, WallType};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -44,6 +45,13 @@ fn main() -> Result<(), String> {
     canvas.set_draw_color(pixels::Color::RGB(0, 0, 0));
     canvas.clear();
     canvas.present();
+
+    let ttf_context = sdl2::ttf::init().expect("f");
+    let font = ttf_context
+        .load_font("fonts/roboto_mono/RobotoMono-VariableFont_wght.ttf", 40)
+        .expect(
+            "Failed to load font at fonts/roboto_mono/RobotoMono-VariableFont_wght.ttf",
+        );
 
     let mut events = sdl_context.event_pump()?;
 
@@ -127,6 +135,15 @@ fn main() -> Result<(), String> {
         WallType::Right,
     );
     update_info.actors.push(RefCell::new(Box::new(wall)));
+
+    let scoreboard = Scoreboard::new(
+        &Vec2 {
+            x: half_width,
+            y: 50.0,
+        },
+        &font,
+    );
+    update_info.actors.push(RefCell::new(Box::new(scoreboard)));
 
     'main: loop {
         let now = Instant::now();

@@ -2,10 +2,7 @@ use crate::actor::{ColliderBounds, Vec2};
 
 pub fn collides(c1: ColliderBounds, c2: ColliderBounds) -> bool {
     match c1 {
-        ColliderBounds::Circle {
-            radius,
-            center,
-        } => match c2 {
+        ColliderBounds::Circle { radius, center } => match c2 {
             ColliderBounds::Rectangle {
                 up,
                 down,

@@ -121,15 +121,15 @@ impl Collider {
     }
 }
 
-pub struct UpdateInfo {
+pub struct UpdateInfo<'a> {
     pub keys_pressed: HashSet<Keycode>,
     pub elapsed: Duration,
     pub elapsed_sec_f32: f32,
-    pub actors: Vec<RefCell<Box<dyn Actor>>>,
+    pub actors: Vec<RefCell<Box<dyn Actor + 'a>>>,
 }
 
 pub enum ActorData {
-    Wall(WallType)
+    Wall(WallType),
 }
 
 pub trait Actor {
