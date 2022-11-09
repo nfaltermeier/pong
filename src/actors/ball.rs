@@ -26,7 +26,15 @@ impl Ball {
     }
 
     fn get_random_starting_velocity() -> Vec2 {
-        let v = math_helper::get_point_on_unit_circle();
+        // Ball should end up going within (0 ± FOURTH_ANGLE or 1 ± FOURTH_ANGLE) * pi
+        // FOURTH_ANGLE should be less than 0.5
+        const FOURTH_ANGLE: f32 = 0.3;
+        let mut theta: f32 = rand::random::<f32>() * (4.0 * FOURTH_ANGLE) - FOURTH_ANGLE;
+        if theta > FOURTH_ANGLE {
+            theta += 1.0 - (2.0 * FOURTH_ANGLE);
+        }
+        theta *= std::f32::consts::PI;
+        let v = math_helper::get_point_on_unit_circle(theta);
         Vec2 {
             x: v.0 * INITIAL_SPEED,
             y: v.1 * INITIAL_SPEED,
