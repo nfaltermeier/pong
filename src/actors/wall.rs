@@ -50,4 +50,6 @@ impl Actor for Wall {
     fn get_data(&self) -> Option<ActorData> {
         Option::Some(ActorData::Wall(self.wall_type))
     }
+
+    fn set_data(&mut self, _data: ActorData) {}
 }

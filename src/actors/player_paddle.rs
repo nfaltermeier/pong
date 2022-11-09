@@ -109,4 +109,6 @@ impl Actor for PlayerPaddle {
     fn get_data(&self) -> Option<ActorData> {
         Option::None
     }
+
+    fn set_data(&mut self, _data: ActorData) {}
 }

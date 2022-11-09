@@ -7,7 +7,7 @@ use std::{
 
 use sdl2::{keyboard::Keycode, render::Canvas, video::Window};
 
-use crate::actors::wall::WallType;
+use crate::actors::{wall::WallType, scoreboard::ScoreboardData};
 
 #[derive(Copy, Clone)]
 pub struct Vec2 {
@@ -130,6 +130,7 @@ pub struct UpdateInfo<'a> {
 
 pub enum ActorData {
     Wall(WallType),
+    Scoreboard(ScoreboardData)
 }
 
 pub trait Actor {
@@ -140,4 +141,5 @@ pub trait Actor {
     fn draw(&self, canvas: &mut Canvas<Window>) -> Result<(), String>;
     fn get_collider(&self) -> Option<Collider>;
     fn get_data(&self) -> Option<ActorData>;
+    fn set_data(&mut self, data: ActorData);
 }

@@ -32,6 +32,35 @@ impl Ball {
             y: v.1 * INITIAL_SPEED,
         }
     }
+
+    fn update_scoreboard(&mut self, info: &UpdateInfo, wall: WallType) {
+        let mut i = 0;
+        while i < info.actors.len() {
+            if let Option::Some(a) = info.actors.get(i) {
+                if let Result::Ok(mut actor) = a.try_borrow_mut() {
+                    if let Option::Some(data) = actor.get_data() {
+                        match data {
+                            ActorData::Scoreboard(mut s) => {
+                                match wall {
+                                    WallType::Left => {
+                                        s.left_score += 1;
+                                    }
+                                    WallType::Right => {
+                                        s.right_score += 1;
+                                    }
+                                    WallType::Regular => {}
+                                }
+                                actor.set_data(ActorData::Scoreboard(s));
+                                return;
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+            }
+            i += 1;
+        }
+    }
 }
 
 impl Actor for Ball {
@@ -69,6 +98,7 @@ impl Actor for Ball {
                                     {
                                         self.position = self.initial_position;
                                         self.velocity = Ball::get_random_starting_velocity();
+                                        self.update_scoreboard(info, wd);
                                         return;
                                     }
                                 }
@@ -117,6 +147,8 @@ impl Actor for Ball {
     fn get_data(&self) -> Option<ActorData> {
         Option::None
     }
+
+    fn set_data(&mut self, _data: ActorData) {}
 }
 
 // Midpoint circle algorithm, adapted from https://stackoverflow.com/a/48291620, modified to draw a filled circle
